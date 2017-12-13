@@ -7,9 +7,298 @@ module Data.Gerber.Abs where
 
 
 
-data Exp = EAdd Exp Exp | EMul Exp Exp | EInt Integer
+newtype Ident = Ident String deriving (Eq, Ord, Show, Read)
+newtype Unsigned = Unsigned String deriving (Eq, Ord, Show, Read)
+newtype Long = Long String deriving (Eq, Ord, Show, Read)
+newtype UnsignedLong = UnsignedLong String
+  deriving (Eq, Ord, Show, Read)
+newtype Hexadecimal = Hexadecimal String
+  deriving (Eq, Ord, Show, Read)
+newtype HexUnsigned = HexUnsigned String
+  deriving (Eq, Ord, Show, Read)
+newtype HexLong = HexLong String deriving (Eq, Ord, Show, Read)
+newtype HexUnsLong = HexUnsLong String
+  deriving (Eq, Ord, Show, Read)
+newtype Octal = Octal String deriving (Eq, Ord, Show, Read)
+newtype OctalUnsigned = OctalUnsigned String
+  deriving (Eq, Ord, Show, Read)
+newtype OctalLong = OctalLong String deriving (Eq, Ord, Show, Read)
+newtype OctalUnsLong = OctalUnsLong String
+  deriving (Eq, Ord, Show, Read)
+newtype CDouble = CDouble String deriving (Eq, Ord, Show, Read)
+newtype CFloat = CFloat String deriving (Eq, Ord, Show, Read)
+newtype CLongDouble = CLongDouble String
+  deriving (Eq, Ord, Show, Read)
+data Program = Progr [External_declaration]
   deriving (Eq, Ord, Show, Read)
 
-data Coord = ECoord Exp
+data External_declaration = Afunc Function_def | Global Dec
+  deriving (Eq, Ord, Show, Read)
+
+data Function_def
+    = OldFunc [Declaration_specifier] Declarator [Dec] Compound_stm
+    | NewFunc [Declaration_specifier] Declarator Compound_stm
+    | OldFuncInt Declarator [Dec] Compound_stm
+    | NewFuncInt Declarator Compound_stm
+  deriving (Eq, Ord, Show, Read)
+
+data Dec
+    = NoDeclarator [Declaration_specifier]
+    | Declarators [Declaration_specifier] [Init_declarator]
+  deriving (Eq, Ord, Show, Read)
+
+data Declaration_specifier
+    = Type Type_specifier
+    | Storage Storage_class_specifier
+    | SpecProp Type_qualifier
+  deriving (Eq, Ord, Show, Read)
+
+data Init_declarator
+    = OnlyDecl Declarator | InitDecl Declarator Initz
+  deriving (Eq, Ord, Show, Read)
+
+data Type_specifier
+    = Tvoid
+    | Tchar
+    | Tshort
+    | Tint
+    | Tlong
+    | Tfloat
+    | Tdouble
+    | Tsigned
+    | Tunsigned
+    | Tstruct Struct_or_union_spec
+    | Tenum Enum_specifier
+    | Tname
+  deriving (Eq, Ord, Show, Read)
+
+data Storage_class_specifier
+    = MyType | GlobalPrograms | LocalProgram | LocalBlock | LocalReg
+  deriving (Eq, Ord, Show, Read)
+
+data Type_qualifier = Const | NoOptim
+  deriving (Eq, Ord, Show, Read)
+
+data Struct_or_union_spec
+    = Tag Struct_or_union Ident [Struct_dec]
+    | Unique Struct_or_union [Struct_dec]
+    | TagType Struct_or_union Ident
+  deriving (Eq, Ord, Show, Read)
+
+data Struct_or_union = Struct | Union
+  deriving (Eq, Ord, Show, Read)
+
+data Struct_dec = Structen [Spec_qual] [Struct_declarator]
+  deriving (Eq, Ord, Show, Read)
+
+data Spec_qual = TypeSpec Type_specifier | QualSpec Type_qualifier
+  deriving (Eq, Ord, Show, Read)
+
+data Struct_declarator
+    = Decl Declarator
+    | Field Constant_expression
+    | DecField Declarator Constant_expression
+  deriving (Eq, Ord, Show, Read)
+
+data Enum_specifier
+    = EnumDec [Enumerator]
+    | EnumName Ident [Enumerator]
+    | EnumVar Ident
+  deriving (Eq, Ord, Show, Read)
+
+data Enumerator = Plain Ident | EnumInit Ident Constant_expression
+  deriving (Eq, Ord, Show, Read)
+
+data Declarator
+    = BeginPointer Pointer Direct_declarator
+    | NoPointer Direct_declarator
+  deriving (Eq, Ord, Show, Read)
+
+data Direct_declarator
+    = Name Ident
+    | ParenDecl Declarator
+    | InnitArray Direct_declarator Constant_expression
+    | Incomplete Direct_declarator
+    | NewFuncDec Direct_declarator Parameter_type
+    | OldFuncDef Direct_declarator [Ident]
+    | OldFuncDec Direct_declarator
+  deriving (Eq, Ord, Show, Read)
+
+data Pointer
+    = Point
+    | PointQual [Type_qualifier]
+    | PointPoint Pointer
+    | PointQualPoint [Type_qualifier] Pointer
+  deriving (Eq, Ord, Show, Read)
+
+data Parameter_type
+    = AllSpec Parameter_declarations | More Parameter_declarations
+  deriving (Eq, Ord, Show, Read)
+
+data Parameter_declarations
+    = ParamDec Parameter_declaration
+    | MoreParamDec Parameter_declarations Parameter_declaration
+  deriving (Eq, Ord, Show, Read)
+
+data Parameter_declaration
+    = OnlyType [Declaration_specifier]
+    | TypeAndParam [Declaration_specifier] Declarator
+    | Abstract [Declaration_specifier] Abstract_declarator
+  deriving (Eq, Ord, Show, Read)
+
+data Initz
+    = InitExpr Exp
+    | InitListOne Initializers
+    | InitListTwo Initializers
+  deriving (Eq, Ord, Show, Read)
+
+data Initializers = AnInit Initz | MoreInit Initializers Initz
+  deriving (Eq, Ord, Show, Read)
+
+data Type_name
+    = PlainType [Spec_qual]
+    | ExtendedType [Spec_qual] Abstract_declarator
+  deriving (Eq, Ord, Show, Read)
+
+data Abstract_declarator
+    = PointerStart Pointer
+    | Advanced Dir_abs_dec
+    | PointAdvanced Pointer Dir_abs_dec
+  deriving (Eq, Ord, Show, Read)
+
+data Dir_abs_dec
+    = WithinParentes Abstract_declarator
+    | Array
+    | InitiatedArray Constant_expression
+    | UnInitiated Dir_abs_dec
+    | Initiated Dir_abs_dec Constant_expression
+    | OldFunction
+    | NewFunction Parameter_type
+    | OldFuncExpr Dir_abs_dec
+    | NewFuncExpr Dir_abs_dec Parameter_type
+  deriving (Eq, Ord, Show, Read)
+
+data Stm
+    = DecS Dec
+    | LabelS Labeled_stm
+    | CompS Compound_stm
+    | ExprS Expression_stm
+    | SelS Selection_stm
+    | IterS Iter_stm
+    | JumpS Jump_stm
+  deriving (Eq, Ord, Show, Read)
+
+data Labeled_stm
+    = SlabelOne Ident Stm
+    | SlabelTwo Constant_expression Stm
+    | SlabelThree Stm
+  deriving (Eq, Ord, Show, Read)
+
+data Compound_stm = ScompTwo [Stm]
+  deriving (Eq, Ord, Show, Read)
+
+data Expression_stm = SexprOne | SexprTwo Exp
+  deriving (Eq, Ord, Show, Read)
+
+data Selection_stm
+    = SselOne Exp Stm | SselTwo Exp Stm Stm | SselThree Exp Stm
+  deriving (Eq, Ord, Show, Read)
+
+data Iter_stm
+    = SiterOne Exp Stm
+    | SiterTwo Stm Exp
+    | SiterThree Expression_stm Expression_stm Stm
+    | SiterFour Expression_stm Expression_stm Exp Stm
+  deriving (Eq, Ord, Show, Read)
+
+data Jump_stm
+    = SjumpOne Ident
+    | SjumpTwo
+    | SjumpThree
+    | SjumpFour
+    | SjumpFive Exp
+  deriving (Eq, Ord, Show, Read)
+
+data Exp
+    = Ecomma Exp Exp
+    | Eassign Exp Assignment_op Exp
+    | Econdition Exp Exp Exp
+    | Elor Exp Exp
+    | Eland Exp Exp
+    | Ebitor Exp Exp
+    | Ebitexor Exp Exp
+    | Ebitand Exp Exp
+    | Eeq Exp Exp
+    | Eneq Exp Exp
+    | Elthen Exp Exp
+    | Egrthen Exp Exp
+    | Ele Exp Exp
+    | Ege Exp Exp
+    | Eleft Exp Exp
+    | Eright Exp Exp
+    | Eplus Exp Exp
+    | Eminus Exp Exp
+    | Etimes Exp Exp
+    | Ediv Exp Exp
+    | Emod Exp Exp
+    | Etypeconv Type_name Exp
+    | Epreinc Exp
+    | Epredec Exp
+    | Epreop Unary_operator Exp
+    | Ebytesexpr Exp
+    | Ebytestype Type_name
+    | Earray Exp Exp
+    | Efunk Exp
+    | Efunkpar Exp [Exp]
+    | Eselect Exp Ident
+    | Epoint Exp Ident
+    | Epostinc Exp
+    | Epostdec Exp
+    | Evar Ident
+    | Econst Constant
+    | Estring String
+  deriving (Eq, Ord, Show, Read)
+
+data Constant
+    = Efloat Double
+    | Echar Char
+    | Eunsigned Unsigned
+    | Elong Long
+    | Eunsignlong UnsignedLong
+    | Ehexadec Hexadecimal
+    | Ehexaunsign HexUnsigned
+    | Ehexalong HexLong
+    | Ehexaunslong HexUnsLong
+    | Eoctal Octal
+    | Eoctalunsign OctalUnsigned
+    | Eoctallong OctalLong
+    | Eoctalunslong OctalUnsLong
+    | Ecdouble CDouble
+    | Ecfloat CFloat
+    | Eclongdouble CLongDouble
+    | Eint Integer
+    | Elonger Integer
+    | Edouble Double
+  deriving (Eq, Ord, Show, Read)
+
+data Constant_expression = Especial Exp
+  deriving (Eq, Ord, Show, Read)
+
+data Unary_operator
+    = Address | Indirection | Plus | Negative | Complement | Logicalneg
+  deriving (Eq, Ord, Show, Read)
+
+data Assignment_op
+    = Assign
+    | AssignMul
+    | AssignDiv
+    | AssignMod
+    | AssignAdd
+    | AssignSub
+    | AssignLeft
+    | AssignRight
+    | AssignAnd
+    | AssignXor
+    | AssignOr
   deriving (Eq, Ord, Show, Read)
 
