@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Data.Gerber.Parser where
+module Data.Gerber.ApplicativeParser where
 
 import Control.Applicative
 

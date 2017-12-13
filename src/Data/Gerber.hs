@@ -1,5 +1,5 @@
 module Data.Gerber
-  ( module Data.Gerber.Parser
+  ( module Data.Gerber.ApplicativeParser
   ) where
 
-import Data.Gerber.Parser
+import Data.Gerber.ApplicativeParser

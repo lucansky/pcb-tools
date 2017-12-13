@@ -1,53 +1,86 @@
-name:                pcb-tools
-version:             0.1.0.0
-synopsis:            Gerber & Excellon parser
-description:         Please see README.md
-homepage:            https://github.com/githubuser/pcb-tools
-license:             BSD3
-license-file:        LICENSE
-author:              Adam Lucansky
-maintainer:          adamlucansky@gmail.com
-copyright:           2017 Troll
-category:            Data
-build-type:          Simple
-extra-source-files:  README.md
-cabal-version:       >=1.10
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 3df93a5dd061832e178ef201328ec463baed443e3a58549dd46e2c7fff9dd7ee
 
-library
-  hs-source-dirs:      src
-  exposed-modules:     Lib
-                     , Data.Gerber
-                     , Data.Gerber.Parser
-  build-depends:       base >= 4.7 && < 5
-                     , attoparsec
-                     , bytestring
-                     --, megaparsec
-                     , mtl
-                     , pretty-simple
-                     --, hspec
-                     , scientific
-                     , hgeometry
-  default-language:    Haskell2010
+name:           pcb-tools
+version:        0.1.0.0
+synopsis:       Short description of your package
+description:    Please see the README on Github at <https://github.com/githubuser/gerberhs6#readme>
+homepage:       https://github.com/githubuser/gerberhs6#readme
+bug-reports:    https://github.com/githubuser/gerberhs6/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2017 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
 
-executable gerberhs-exe
-  hs-source-dirs:      app
-  main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , pcb-tools
-                     , hgeometry
-                     , semigroups
-  default-language:    Haskell2010
-
-test-suite gerberhs-test
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       base
-                     , gerberhs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
+extra-source-files:
+    README.md
 
 source-repository head
-  type:     git
-  location: https://github.com/githubuser/gerberhs
+  type: git
+  location: https://github.com/githubuser/gerberhs6
+
+library
+  hs-source-dirs:
+      src
+  build-depends:
+      array
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , scientific
+  build-tools:
+      alex
+    , happy
+  exposed-modules:
+      Data.Gerber
+      Data.Gerber.Abs
+      Data.Gerber.ApplicativeParser
+      Data.Gerber.ErrM
+      Data.Gerber.Lex
+      Data.Gerber.Par
+      Data.Gerber.Print
+      Data.Gerber.Skel
+      Data.Gerber.Test
+      Lib
+  other-modules:
+      Paths_pcb_tools
+  default-language: Haskell2010
+
+executable gerberhs-exe
+  main-is: Main.hs
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      array
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , pcb-tools
+    , scientific
+  other-modules:
+      Paths_pcb_tools
+  default-language: Haskell2010
+
+test-suite gerberhs6-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      array
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , gerberhs6
+    , scientific
+  other-modules:
+      Paths_pcb_tools
+  default-language: Haskell2010
