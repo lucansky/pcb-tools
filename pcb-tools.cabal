@@ -2,17 +2,18 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3df93a5dd061832e178ef201328ec463baed443e3a58549dd46e2c7fff9dd7ee
+-- hash: ba7d2dc4763dbebb62a2431e84a26770e7b4add3b7f2dbd7696767a8e524f686
 
 name:           pcb-tools
 version:        0.1.0.0
-synopsis:       Short description of your package
-description:    Please see the README on Github at <https://github.com/githubuser/gerberhs6#readme>
-homepage:       https://github.com/githubuser/gerberhs6#readme
-bug-reports:    https://github.com/githubuser/gerberhs6/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2017 Author name here
+synopsis:       Gerber (RS-274X) and Excellon parser, pcb2gcode
+description:    Please see the README on Github at <https://github.com/lucansky/pcb-tools#readme>
+category:       Graphics
+homepage:       https://github.com/lucansky/pcb-tools#readme
+bug-reports:    https://github.com/lucansky/pcb-tools/issues
+author:         Adam Lučanský
+maintainer:     adamlucansky@gmail.com
+copyright:      2017 Adam Lucansky
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -23,7 +24,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/gerberhs6
+  location: https://github.com/lucansky/pcb-tools
 
 library
   hs-source-dirs:
@@ -38,21 +39,23 @@ library
       alex
     , happy
   exposed-modules:
+      Data.Excellon.Types
       Data.Gerber
-      Data.Gerber.Abs
-      Data.Gerber.ApplicativeParser
-      Data.Gerber.ErrM
-      Data.Gerber.Lex
-      Data.Gerber.Par
-      Data.Gerber.Print
-      Data.Gerber.Skel
-      Data.Gerber.Test
+      Data.Gerber.GerberAST.Abs
+      Data.Gerber.GerberAST.ErrM
+      Data.Gerber.GerberAST.Lex
+      Data.Gerber.GerberAST.Par
+      Data.Gerber.GerberAST.Print
+      Data.Gerber.GerberAST.Skel
+      Data.Gerber.GerberAST.Test
+      Data.Gerber.Parser
+      Data.Gerber.Types
       Lib
   other-modules:
       Paths_pcb_tools
   default-language: Haskell2010
 
-executable gerberhs-exe
+executable parseGerberTree
   main-is: Main.hs
   hs-source-dirs:
       app
@@ -68,7 +71,7 @@ executable gerberhs-exe
       Paths_pcb_tools
   default-language: Haskell2010
 
-test-suite gerberhs6-test
+test-suite gerber-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   hs-source-dirs:
@@ -79,7 +82,7 @@ test-suite gerberhs6-test
     , attoparsec
     , base >=4.7 && <5
     , bytestring
-    , gerberhs6
+    , pcb-tools
     , scientific
   other-modules:
       Paths_pcb_tools

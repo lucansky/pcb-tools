@@ -1,3 +1,4 @@
 bnfc:
-	bnfc --haskell grammar/Gerber.cf -p Data -d -o src/
-	sed -i '' 's/Main/Data\.Gerber\.Test/g' src/Data/Gerber/Test.hs
+	bnfc --haskell grammar/GerberAST.cf -p Data.Gerber -d -o src/
+	sed -i '' 's/Main/Data\.Gerber\.GerberAST\.Test/g' src/Data/Gerber/GerberAST/Test.hs
+	rm src/Data/Gerber/GerberAST/*.bak

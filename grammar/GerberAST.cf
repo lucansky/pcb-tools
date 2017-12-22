@@ -1,0 +1,48 @@
+--PROGRAM -> CMD_LIST.
+
+--CMD_LIST -> CMD CMD_LIST .
+--CMD_LIST ->  .
+
+--CMD -> STANDARD * .
+--CMD -> % EXTENDED * % .
+
+--STANDARD -> D11 .
+--STANDARD -> D10 .
+--STANDARD -> X0Y0D03.
+
+--EXTENDED -> ADD11C,1.
+--EXTENDED -> AM * x * y.
+
+-- %A*A*%
+Program                 . Commands ::= [Command] ;
+SingleStandardCommand   . Command  ::= Generic "*" ;
+SingleExtendedCommand   . Command  ::= "%" Generic "*" "%" ;
+MultiExtendedCommands   . Command  ::= "%" [ExtendedCommandInside] "%" ;
+Troll                   . ExtendedCommandInside ::= Generic "*" ;
+
+--coercions ExtendedCommandInside 2 ;
+--coercions Command 2 ;
+
+--List              . InsideStandardCommand ::= "LIST" Foo ;
+--EmptyFoo          . Foo ::= ;
+--CommodityFoo      . Foo ::=  Bar ;
+
+separator Command "" ;
+separator nonempty ExtendedCommandInside "" ;
+--separator InsideStandardCommand "" ;
+
+coercions Command 2 ;
+--token Coordinate ('X' (digit*)) ('Y' (digit*)) ;
+
+--token XString ((letter | digit | '_' | '-' | '\n' | '$' | '.' | ',')+) ;
+
+token Generic ((letter | digit | '_' | '-' | '$' | '.' | ',')+) ;
+token UIdent (upper (letter | digit | '_')*) ;
+token LIdent (lower (letter | digit | '_')*) ;
+
+--EAdd. 	Exp 	::= 	Exp 	"+" 	Exp1 	;
+--ESub. 	Exp 	::= 	Exp 	"-" 	Exp1 	;
+--EMul. 	Exp1 	::= 	Exp1 	"*" 	Exp2 	;
+--EDiv. 	Exp1 	::= 	Exp1 	"/" 	Exp2 	;
+--EInt. 	Exp2 	::= 	Integer 	;
+--coercions 	Exp 	2 	;
