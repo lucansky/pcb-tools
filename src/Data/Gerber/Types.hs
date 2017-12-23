@@ -1,9 +1,11 @@
 module Data.Gerber.Types where
 
+import Data.ByteString (ByteString)
+import Data.Scientific hiding (scientific)
+
 data Unit = MM | IN
   deriving (Show, Eq)
 
---data Command = Standard ByteString | Extended ByteString
 data Command =
   -- STANDARD COMMANDS
   -- G04

@@ -8,30 +8,29 @@ import Prelude hiding (takeWhile)
 
 import Data.ByteString (ByteString)
 import Data.Attoparsec.ByteString.Char8
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Char8 as BSC
 import Data.Attoparsec.Combinator (choice)
-
 import Data.Char (digitToInt)
-
 import Data.Scientific hiding (scientific)
+import Data.Gerber.Types
 
-parseGerber input = do
-  return $ parseOnly parseManyD input
+parseGerber input = parseOnly parseManyD input
 
 parseQuadrantMode :: Parser QuadrantMode
-parseQuadrantMode = (pure SingleQuadrant <$> "G74")
-                <|> (pure MultiQuadrant <$> "G75")
+parseQuadrantMode = SingleQuadrant <$ "G74"
+                <|> MultiQuadrant <$ "G75"
 
-parseInterpolationMode = (pure Linear <$> "G01")
-                     <|> (pure Clockwise <$> "G02")
-                     <|> (pure CounterClockwise <$> "G03")
+parseInterpolationMode = Linear <$ "G01"
+                     <|> Clockwise <$ "G02"
+                     <|> CounterClockwise <$ "G03"
 
-parseRegionBoundary = (pure StartRegion <$> "G36") <|> (pure EndRegion <$> "G37")
+parseRegionBoundary = StartRegion <$ "G36"
+                  <|> EndRegion <$ "G37"
 
 parseAction :: Parser Action
-parseAction = (pure Draw <$> "D01")
-          <|> (pure Move <$> "D02")
-          <|> (pure Flash <$> "D03")
+parseAction = Draw <$ "D01"
+          <|> Move <$ "D02"
+          <|> Flash <$ "D03"
 
 -- Low-level parsers
 optionalNewLines = many (char '\n' <|> char '\r')
@@ -40,7 +39,7 @@ restOfCommand = takeWhile (/='*')
 coords = Coord <$> maybeOption (char 'X' *> num) <*> maybeOption (char 'Y' *> num)
 
 parseComment :: Parser Command
-parseComment = Comment <$> ("G04" *> (optional $ char ' ') *> restOfCommand)
+parseComment = Comment <$> ("G04" *> (char ' ') *> restOfCommand)
 
 parseToolChange :: Parser Command
 parseToolChange = ToolChange <$> (char 'D' *> num)
@@ -52,48 +51,36 @@ parseDCode = do
   return $ Line x a
 
 parseEOF :: Parser Command
-parseEOF = (pure EndOfFile <$> "M02")
+parseEOF = pure EndOfFile <$> "M02"
 
 parseUnknownStandard :: Parser Command
-parseUnknownStandard = do --Unknown <$> (many1 anyChar)
-  x <- takeWhile1 (/='*')
-  return $ UnknownStandard x
+parseUnknownStandard = UnknownStandard <$> (takeWhile (const True))
 
 parseCommand :: Parser Command
 parseCommand = parseExtendedCommand <|> parseStandardCommand
 
 parseStandardCommand :: Parser Command
-parseStandardCommand = do
-  --_ <- takeWhile (/='*')
-  x <-   parseComment
-     <|> parseToolChange
-     <|> parseDCode
-     <|> (SetQuadrantMode <$> parseQuadrantMode)
-     <|> (SetInterpolationMode <$> parseInterpolationMode)
-     <|> (SetRegionBoundary <$> parseRegionBoundary)
-     <|> parseEOF
-     <|> parseUnknownStandard
-  char '*'
-  return x
+parseStandardCommand =
+  choice [parseComment,
+            parseToolChange,
+            parseDCode,
+            SetQuadrantMode <$> parseQuadrantMode,
+            SetInterpolationMode <$> parseInterpolationMode,
+            SetRegionBoundary <$> parseRegionBoundary,
+            EndOfFile <$ "M02",
+            parseUnknownStandard]
 
 parseExtendedCommand :: Parser Command
 parseExtendedCommand = do
-  char '%'
-  x <- choice [parseFormatSpecification,
-               parseSetUnits,
-               parseAddAperture,
-               parseApertureMacro,
-               parseUnknownExtended]
-  optional $ char '*'
-  optional endOfLine
-  char '%'
-  return x
+  choice [parseFormatSpecification,
+            parseSetUnits,
+            parseAddAperture,
+            parseApertureMacro,
+            parseUnknownExtended]
 
 ---
--- TODO: Each extended command should at the end parse "*%", except for
--- some, which can be %...*...*...*%
 parseUnknownExtended :: Parser Command
-parseUnknownExtended = UnknownExtended <$> (takeWhile1 (/='*') <* char '*')-- (takeTill (`elem` ['*']))
+parseUnknownExtended = UnknownExtended <$> (takeWhile1 (/='*'))
 
 -- Make a parser optional, return Nothing if there is no match
 -- Stolen from https://stackoverflow.com/questions/34142495/attoparsec-optional-parser-with-maybe-result
@@ -125,7 +112,7 @@ parseApertureMacro = do
   string "AM"
   name <- takeWhile1 (/='*')
   char '*'
-  apertures <- (sepBy (takeWhile (/='*')) $ char '*')
+  apertures <- sepBy (takeWhile (/='*')) $ char '*'
 
   return $ DefineAperture name apertures
     --where
@@ -140,11 +127,16 @@ data GerberStatement = Standard ByteString | Extended [ByteString]
 
 parseStmtsGerber :: Parser [GerberStatement]
 parseStmtsGerber = do
-  many1 $ (e <|> s) <* optionalNewLines
+  many1 $ (e <|> eof <|> s) <* optionalNewLines
     where
-      e = Extended <$> (char '%' *> (many1 (eat <* char '*' <* nl)) <* char '%')
-      s = Standard <$> ((takeWhile1 $ inClass "A-Za-z0-9,.$\n") <* (char '*' <* nl))
-      eat = takeWhile1 $ inClass "A-Za-z0-9,.$\n"
+      e   = Extended <$> (char '%' *> many1 (eat <* char '*' <* nl) <* char '%')
+      s   = Standard <$> takeWhile1 (inClass allowedChars) <* char '*' <* nl
+      eof = Standard <$> string "M02" <* char '*' <* many anyChar
+
+      eat = takeWhile1 $ inClass allowedChars
+
+allowedChars :: String
+allowedChars = "A-Za-z0-9,.#@$\n"
 
 ---
 num = signed decimal
