@@ -2,9 +2,14 @@
 module Main where
 
 
-import qualified Data.Gerber.Test as T
+import qualified Data.Gerber.GerberAST.Test as T
+import Data.Gerber.GerberAST.Par
 
-main = T.main
+--main = T.main
+main = do
+  a <- readFile "example/scale.gbr"
+  T.run 5 pCommands a
+  return ()
 
 
 

@@ -18,80 +18,20 @@ import Data.Scientific hiding (scientific)
 parseGerber input = do
   return $ parseOnly parseManyD input
 
-data Unit = MM | IN
-  deriving (Show, Eq)
-
---data Command = Standard ByteString | Extended ByteString
-data Command =
-  -- STANDARD COMMANDS
-  -- G04
-  Comment ByteString |
-  -- Dxx, xx >= 10
-  ToolChange Integer |
-  Line Action Coord |
-  AddAperture Integer ByteString [Scientific] |
-  DefineAperture ByteString [ByteString] |
-  EndOfFile |
-  --Standard ByteString |
-  -- EXTENDED COMMANDS
-  -- FSLAX
-  FormatSpecification Integer Integer Integer Integer |
-  -- MO
-  SetUnits Unit |
-  SetQuadrantMode QuadrantMode |
-  -- G01/G02/G03
-  SetInterpolationMode InterpolationMode |
-  -- G36/G37
-  SetRegionBoundary RegionBoundary |
-  Deprecated DeprecatedType |
-  SetOffset Integer Integer | -- Deprecated
-  UnknownExtended ByteString |
-  UnknownStandard ByteString
-    deriving (Show, Eq)
-
-data DeprecatedType =
-  OFA
-    deriving (Show, Eq)
-
-data ObjectPolarity = Dark | Clear
-  deriving (Show, Eq)
-
-data Aperture =
-  Circle Scientific |
-  Rectangle Scientific Scientific
-    deriving (Show, Eq)
-
-data QuadrantMode = SingleQuadrant | MultiQuadrant
-  deriving (Show, Eq)
-
 parseQuadrantMode :: Parser QuadrantMode
 parseQuadrantMode = (pure SingleQuadrant <$> "G74")
                 <|> (pure MultiQuadrant <$> "G75")
-
-data InterpolationMode = Linear | Clockwise | CounterClockwise
-  deriving (Show, Eq)
 
 parseInterpolationMode = (pure Linear <$> "G01")
                      <|> (pure Clockwise <$> "G02")
                      <|> (pure CounterClockwise <$> "G03")
 
-data RegionBoundary = StartRegion | EndRegion
-  deriving (Show, Eq)
-
 parseRegionBoundary = (pure StartRegion <$> "G36") <|> (pure EndRegion <$> "G37")
-
-data Action = Draw
-            | Move
-            | Flash
-  deriving (Show, Eq)
 
 parseAction :: Parser Action
 parseAction = (pure Draw <$> "D01")
           <|> (pure Move <$> "D02")
           <|> (pure Flash <$> "D03")
-
-data Coord = Coord (Maybe Integer) (Maybe Integer)
-  deriving (Show, Eq)
 
 -- Low-level parsers
 optionalNewLines = many (char '\n' <|> char '\r')
@@ -191,6 +131,20 @@ parseApertureMacro = do
     --where
       --modifier = do
       --  takeWhile $ inClass "A-Za-z0-9,.$"
+
+--
+nl = optionalNewLines
+
+data GerberStatement = Standard ByteString | Extended [ByteString]
+  deriving (Show, Eq)
+
+parseStmtsGerber :: Parser [GerberStatement]
+parseStmtsGerber = do
+  many1 $ (e <|> s) <* optionalNewLines
+    where
+      e = Extended <$> (char '%' *> (many1 (eat <* char '*' <* nl)) <* char '%')
+      s = Standard <$> ((takeWhile1 $ inClass "A-Za-z0-9,.$\n") <* (char '*' <* nl))
+      eat = takeWhile1 $ inClass "A-Za-z0-9,.$\n"
 
 ---
 num = signed decimal
