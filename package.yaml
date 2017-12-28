@@ -24,6 +24,8 @@ dependencies:
 - attoparsec
 - scientific
 - array
+- pretty-simple
+- lens
 
 library:
   source-dirs: src

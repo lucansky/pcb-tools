@@ -12,7 +12,7 @@ data Command =
   Comment ByteString |
   -- Dxx, xx >= 10
   ToolChange Integer |
-  Line Action Coord |
+  Operation Coord Action |
   AddAperture Integer ByteString [Scientific] |
   DefineAperture ByteString [ByteString] |
   EndOfFile |
