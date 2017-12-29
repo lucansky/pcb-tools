@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0460972b14458252d0abd22e696949d9c5b524efa7a571bc7d25be0e607b40da
+-- hash: 71143dbb5ae49752d00e7dc404a834b0f36402334e93daf2f58f9ead473e07f6
 
 name:           pcb-tools
 version:        0.1.0.0
@@ -34,7 +34,9 @@ library
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , containers
     , lens
+    , mtl
     , pretty-simple
     , scientific
   build-tools:
@@ -68,7 +70,9 @@ executable parseGerberTree
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , containers
     , lens
+    , mtl
     , pcb-tools
     , pretty-simple
     , scientific
@@ -87,7 +91,9 @@ test-suite gerber-test
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , containers
     , lens
+    , mtl
     , pcb-tools
     , pretty-simple
     , scientific

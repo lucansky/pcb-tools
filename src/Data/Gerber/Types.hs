@@ -40,10 +40,10 @@ data DeprecatedType =
 data ObjectPolarity = Dark | Clear
   deriving (Show, Eq)
 
-data Aperture =
-  Circle Scientific |
-  Rectangle Scientific Scientific
-    deriving (Show, Eq)
+--data Aperture =
+--  Circle Scientific |
+--  Rectangle Scientific Scientific
+--    deriving (Show, Eq)
 
 data QuadrantMode = SingleQuadrant | MultiQuadrant
   deriving (Show, Eq)

@@ -2,30 +2,60 @@
 module Data.Gerber.Interpreter where
 
 import Data.Gerber.Types
+import Control.Monad.State
+import Control.Monad (ap)
 import Control.Lens hiding (element)
+import Text.Pretty.Simple (pPrint)
+import qualified Data.Map as Map
+import Data.Map (Map)
+import Lib
+
+data Aperture = Aperture
+  deriving (Show, Eq)
+type Apertures = Map.Map Integer Aperture
 
 data InterpreterState = InterpreterState
   { _commandsParsed :: Integer
-  , _currentTool :: Integer}
+  , _currentTool :: Integer
+  , _currentCoord :: Coord
+  , _apertures :: Apertures}
   deriving (Show, Eq)
 
 makeLenses ''InterpreterState
 
-initState = InterpreterState
+initStateM = InterpreterState
   { _commandsParsed = 0
-  , _currentTool = 0}
+  , _currentTool = 0
+  , _currentCoord = Coord Nothing Nothing
+  , _apertures = Map.empty}
 
-eval :: Command -> InterpreterState -> InterpreterState
-eval (ToolChange x) = over currentTool (const x)
-eval _ = over commandsParsed (+1)
---  InterpreterState { commandsParsed = commandsParsed state + 1 }
---eval command state = -- over (commandsParsed) (+1)
+evalM :: Command -> State InterpreterState String
+evalM (ToolChange b) = do
+  modify $ over (currentTool) (const b)
+  modify $ over (commandsParsed) (+1)
+  return "Parsed one cmd."
+evalM (Operation coord action) = do
+  case action of
+    Move -> modify $ over currentCoord (const coord)
+    otherwise -> return ()
 
-evalBulk :: [Command] -> InterpreterState
-evalBulk cmds = go cmds initState
-  where
-    go :: [Command] -> InterpreterState -> InterpreterState
-    go []     imm = imm
-    go (x:[])    imm = eval x imm
-    go (x:xs) imm = go xs $ eval x imm
+  modify $ over (commandsParsed) (+1)
+  return "Operation."
 
+evalM EndOfFile = return "End of stream."
+evalM x         = return $ "Some command." ++ show x
+
+sample1 = ToolChange 10
+sample2 = ToolChange 11
+
+sampleList = [
+  ToolChange 10,
+  ToolChange 11,
+  EndOfFile
+             ]
+
+try = do
+  (Right sampleList) <- exampleParsedGerber
+
+  -- runState can be replaced with execState
+  print $ runState (mapM evalM sampleList) initStateM
