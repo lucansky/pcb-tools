@@ -19,7 +19,7 @@ data Command =
   --Standard ByteString |
   -- EXTENDED COMMANDS
   -- FSLAX
-  FormatSpecification Integer Integer Integer Integer |
+  FormatStatement FormatSpecification |
   -- MO
   SetUnits Unit |
   SetQuadrantMode QuadrantMode |
@@ -32,6 +32,11 @@ data Command =
   UnknownExtended ByteString |
   UnknownStandard ByteString
     deriving (Show, Eq)
+
+data FormatSpecification = FormatSpecification
+  { xDecimals :: Integer
+  , yDecimals :: Integer}
+  deriving (Show, Eq)
 
 data DeprecatedType =
   OFA

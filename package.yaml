@@ -28,6 +28,11 @@ dependencies:
 - lens
 - mtl
 - containers
+- diagrams
+- diagrams-svg
+- diagrams-contrib
+- diagrams-lib
+- diagrams-rasterific
 
 library:
   source-dirs: src

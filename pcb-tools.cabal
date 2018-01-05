@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 71143dbb5ae49752d00e7dc404a834b0f36402334e93daf2f58f9ead473e07f6
+-- hash: e372e55c879e8e5d2959cbc6cb45dcea1a6057a9b7ddc4e8130348f6b897ff1b
 
 name:           pcb-tools
 version:        0.1.0.0
@@ -35,6 +35,11 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
+    , diagrams
+    , diagrams-contrib
+    , diagrams-lib
+    , diagrams-rasterific
+    , diagrams-svg
     , lens
     , mtl
     , pretty-simple
@@ -71,6 +76,11 @@ executable parseGerberTree
     , base >=4.7 && <5
     , bytestring
     , containers
+    , diagrams
+    , diagrams-contrib
+    , diagrams-lib
+    , diagrams-rasterific
+    , diagrams-svg
     , lens
     , mtl
     , pcb-tools
@@ -92,6 +102,11 @@ test-suite gerber-test
     , base >=4.7 && <5
     , bytestring
     , containers
+    , diagrams
+    , diagrams-contrib
+    , diagrams-lib
+    , diagrams-rasterific
+    , diagrams-svg
     , lens
     , mtl
     , pcb-tools

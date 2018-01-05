@@ -111,12 +111,12 @@ parseFormatSpecification :: Parser Command
 parseFormatSpecification = do
   "FSLA"
   char 'X'
-  xN <- digit
+  _ <- digit
   xM <- digit
   char 'Y'
-  yN <- digit
+  _ <- digit
   yM <- digit
-  return $ FormatSpecification (z xN) (z xM) (z xN) (z xM)
+  return $ FormatStatement $ FormatSpecification (z xM) (z xM)
   where z = toInteger.digitToInt
 
 parseSetUnits :: Parser Command
