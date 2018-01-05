@@ -72,12 +72,13 @@ initStateM = InterpreterState
   , _deprecatedCommands = 0}
     --where q = fromVertices [ 0 & 0, 0 & 2, 0.5 & 0.5, 2 & 0 :: Double ] # closePath
 
-evalM :: Command -> State InterpreterState String
+evalM :: Command -> State InterpreterState ()
 evalM (Comment comment) = do
-  return $ "Comment " ++ BSC.unpack comment
+  --tell $ "Comment " ++ BSC.unpack comment
+  return ()
 evalM (ToolChange b) = do
   modify $ over (currentTool) (const b)
-  return "Parsed one cmd."
+  --tell "Parsed one cmd."
 evalM all@(Operation newCoord action) = do
   currentState <- get
   case action of
@@ -87,27 +88,29 @@ evalM all@(Operation newCoord action) = do
     Flash -> return ()
 
   modify $ currentCoord .~ newCoord
-  return $ show all
 evalM (AddAperture num name params) = do
   modify $ apertures . at num ?~ Aperture name params
-  return $ "Added aperture"++BSC.unpack name
+  --tell $ "Added aperture"++BSC.unpack name
 evalM (DefineAperture name def) = do
   modify $ apertureTemplates . at name ?~ ApertureTemplate name def
-  return $ "Added aperture "++show name++" to templates."
-evalM EndOfFile = return "End of stream."
+  --tell $ "Added aperture "++show name++" to templates."
+evalM EndOfFile = return ()
+  --tell "End of stream."
 evalM (FormatStatement fs) = do
   modify $ formatSpecification .~ Just fs
-  return $ "Set format specification to "++show fs
+  --tell $ "Set format specification to "++show fs
 evalM (SetUnits u) = do
   modify $ coordinateUnit .~ Just u
-  return $ "Set coordinate units to "++show u
+  --tell $ "Set coordinate units to "++show u
 evalM (SetQuadrantMode qm) = do
   modify $ quadrantMode .~ Just qm
-  return $ "Set quadrant mode to "++show qm
+  --tell $ "Set quadrant mode to "++show qm
 evalM (SetInterpolationMode im) = do
   modify $ interpolationMode .~ Just im
-  return $ "Set interpolation mode to "++show im
-evalM x         = return $ "Some command."
+  --tell $ "Set interpolation mode to "++show im
+evalM x         = do
+  --tell $ "Some command."
+  return ()
 
 sampleList = [
     ToolChange 10,
@@ -119,5 +122,5 @@ try = do
   --(Right sampleList) <- exampleParsedGerber
 
   -- runState can be replaced with execState
-  pPrint $ runState (mapM evalM (take 100 shortSnippet)) initStateM
+  pPrint $ execState (mapM evalM (take 100 shortSnippet)) initStateM
 
