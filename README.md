@@ -16,3 +16,5 @@ Install [stack](https://haskellstack.org) and run make. File test.pdf will be ge
 - [ ] Excellon parser / interpreter
 - [ ] G-Code interpreter
 
+## Demo
+![Parsed gerber](https://raw.githubusercontent.com/lucansky/pcb-tools/master/example/scale.png)
