@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
-module Main where
+module GeometryPlayground where
 
 import Data.Gerber
 import Text.Pretty.Simple (pPrint)

@@ -56,9 +56,11 @@ parseQuadrantMode :: Parser QuadrantMode
 parseQuadrantMode = SingleQuadrant <$ "G74"
                 <|> MultiQuadrant <$ "G75"
 
-parseInterpolationMode = Linear <$ "G01"
-                     <|> Clockwise <$ "G02"
-                     <|> CounterClockwise <$ "G03"
+parseInterpolationMode :: Parser InterpolationMode
+parseInterpolationMode =
+  Linear           <$ "G01" <|>
+  Clockwise        <$ "G02" <|>
+  CounterClockwise <$ "G03"
 
 parseRegionBoundary = StartRegion <$ "G36"
                   <|> EndRegion <$ "G37"

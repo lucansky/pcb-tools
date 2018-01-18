@@ -33,14 +33,24 @@ dependencies:
 - diagrams-contrib
 - diagrams-lib
 - diagrams-rasterific
+- optparse-applicative
 
 library:
   source-dirs: src
-  build-tools: [alex, happy]
+  #build-tools: [alex, happy]
 
 executables:
-  parseGerberTree:
-    main:                Main.hs
+  #gcoder:
+  #  main:                GCoder.hs
+  #  source-dirs:         app
+  #  ghc-options:
+  #  - -threaded
+  #  - -rtsopts
+  #  - -with-rtsopts=-N
+  #  dependencies:
+  #  - pcb-tools
+  drawgerber:
+    main:                DrawGerber.hs
     source-dirs:         app
     ghc-options:
     - -threaded

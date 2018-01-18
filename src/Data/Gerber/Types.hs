@@ -64,5 +64,13 @@ data Action = Draw
             | Flash
   deriving (Show, Eq)
 
-data Coord = Coord (Maybe Integer) (Maybe Integer)
+-- For convenience, Coord has fixed type
+type CoordType = Integer
+data Coord = Coord (Maybe CoordType) (Maybe CoordType)
   deriving (Show, Eq)
+
+--instance Functor Coord where
+--  fmap f (Coord x y) = Coord (f x) (f y)
+
+
+
