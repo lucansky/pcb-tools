@@ -14,7 +14,7 @@ Install [stack](https://haskellstack.org) and run make. File test.pdf will be ge
 - [x] Use monads
 - [x] Gerber interpreter/exporter
 - [ ] Excellon parser / interpreter
-- [ ] G-Code interpreter
+- [ ] Outliner & G-Code generator
 
 ## Demo
 ![Parsed gerber](https://raw.githubusercontent.com/lucansky/pcb-tools/master/example/scale.png)
