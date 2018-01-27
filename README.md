@@ -18,7 +18,7 @@ stack exec -- drawgerber --width=400 -o test.pdf
 ```
 Currently has some perfomance issues `O(2^n)` :/
 
-### gcoder
+### gcoder (work in-progress)
 [pcb2gcode](https://github.com/pcb2gcode/pcb2gcode) alternative (with fixed thermals!), not quite done, will come after drawgerber outputs valid diagrams for all edge cases
 
 ## Install
