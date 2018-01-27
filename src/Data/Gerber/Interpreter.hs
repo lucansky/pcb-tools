@@ -6,7 +6,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Data.Gerber.Interpreter where
 
-import Data.Gerber.Types
 import Control.Monad.State
 import Control.Monad (ap, (>=>))
 import Control.Lens hiding (element,(#))
@@ -17,14 +16,15 @@ import Diagrams.Prelude hiding (at)
 --import Diagrams.Backend.Rasterific.CmdLine
 import Diagrams.TwoD.Vector
 
-import Data.ByteString (ByteString)
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BSC
 
-import Data.Scientific (Scientific)
-
+import           Data.Scientific (Scientific)
 import qualified Data.Map as Map
-import Data.Map (Map)
-import Lib
+import           Data.Map (Map)
+import           PCBTools.Common
+import           Data.Gerber.SampleData
+import           Data.Gerber.Types
 
 type ApertureID = Integer
 
@@ -118,7 +118,7 @@ evalM all@(Operation newCoord action) = do
 
   modify $ currentCoord .~ newCoord
     where
-      mtell attr what = modify $ over attr ((:) what)
+      mtell attr what = modify $ over attr (what :)
 evalM (AddAperture num name params) = do
   modify $ apertures . at num ?~ Aperture name params
   --tell $ "Added aperture"++BSC.unpack name

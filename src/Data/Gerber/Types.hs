@@ -1,10 +1,9 @@
 module Data.Gerber.Types where
 
+import PCBTools.Common
 import Data.ByteString (ByteString)
 import Data.Scientific hiding (scientific)
 
-data Unit = MM | IN
-  deriving (Show, Eq)
 
 data Command =
   -- STANDARD COMMANDS

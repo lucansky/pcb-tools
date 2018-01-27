@@ -1,18 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Data.Gerber.Parser where
 
-import Control.Applicative
-
 import qualified Prelude
-import Prelude hiding (takeWhile)
+import           Prelude hiding (takeWhile)
 
-import Data.ByteString (ByteString)
-import Data.Attoparsec.ByteString.Char8
+import           Control.Applicative
+import           Data.ByteString (ByteString)
+import           Data.Attoparsec.ByteString.Char8
 import qualified Data.ByteString.Char8 as BSC
-import Data.Attoparsec.Combinator (choice)
-import Data.Char (digitToInt)
-import Data.Scientific hiding (scientific)
-import Data.Gerber.Types
+import           Data.Attoparsec.Combinator (choice)
+import           Data.Char (digitToInt)
+import           Data.Scientific hiding (scientific)
+
+import           Data.Gerber.Types
+import           PCBTools.Common
 
 parseGerber :: ByteString -> Either String [Command]
 parseGerber input = parseOnly (parseGerber' <* endOfInput) input

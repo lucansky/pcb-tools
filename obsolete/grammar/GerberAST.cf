@@ -18,7 +18,7 @@ Program                 . Commands ::= [Command] ;
 SingleStandardCommand   . Command  ::= Generic "*" ;
 SingleExtendedCommand   . Command  ::= "%" Generic "*" "%" ;
 MultiExtendedCommands   . Command  ::= "%" [ExtendedCommandInside] "%" ;
-Troll                   . ExtendedCommandInside ::= Generic "*" ;
+_                       . ExtendedCommandInside ::= Generic "*" ;
 
 --coercions ExtendedCommandInside 2 ;
 --coercions Command 2 ;

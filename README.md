@@ -13,8 +13,13 @@ Install [stack](https://haskellstack.org) and run make. File test.pdf will be ge
 - [ ] Understand monads
 - [x] Use monads
 - [x] Gerber interpreter/exporter
-- [ ] Excellon parser / interpreter
+- [x] Excellon parser / interpreter
 - [ ] Outliner & G-Code generator
+
+## What's missing
+- Aperture macros
+- Polygon definition
+- Circular interpolation mode
 
 ## Demo
 ![Parsed gerber](https://raw.githubusercontent.com/lucansky/pcb-tools/master/example/scale.png)

@@ -1,12 +1,10 @@
-{-# LANGUAGE OverloadedStrings #-}
-module Lib where
+module Data.Gerber.SampleData where
 
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BSC
-import Data.Gerber.Types
+import           PCBTools.Common
 import qualified Data.Gerber as G
-
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+import           Data.Gerber.Types
 
 exampleInput :: BSC.ByteString
 exampleInput = "G75*%MOMM*%"

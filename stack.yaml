@@ -15,7 +15,7 @@
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-10.1
+resolver: lts-10.0
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -44,8 +44,6 @@ extra-deps:
 - data-clist-0.1.2.0
 - alex-3.2.3
 - diagrams-rasterific-1.4
-
-allow-newer: true
 
 # Override default flag values for local packages and extra-deps
 flags: {}

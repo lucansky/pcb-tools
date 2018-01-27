@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0be2086dfffe098dc34b1f03c6e418eb4dfd05cbc251f674883dbf5bade82650
+-- hash: e9fd561691327e897521967ab19377c10ec48033a5652e59d7041f2ec57a673c
 
 name:           pcb-tools
 version:        0.1.0.0
@@ -41,17 +41,23 @@ library
     , diagrams-rasterific
     , diagrams-svg
     , lens
+    , linear
     , mtl
     , optparse-applicative
     , pretty-simple
     , scientific
   exposed-modules:
+      Data.Excellon
+      Data.Excellon.Interpreter
+      Data.Excellon.Parser
       Data.Excellon.Types
       Data.Gerber
       Data.Gerber.Interpreter
       Data.Gerber.Parser
+      Data.Gerber.SampleData
       Data.Gerber.Types
-      Lib
+      PCBTools
+      PCBTools.Common
   other-modules:
       Paths_pcb_tools
   default-language: Haskell2010
@@ -60,7 +66,7 @@ executable drawgerber
   main-is: DrawGerber.hs
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2
   build-depends:
       array
     , attoparsec
@@ -73,6 +79,7 @@ executable drawgerber
     , diagrams-rasterific
     , diagrams-svg
     , lens
+    , linear
     , mtl
     , optparse-applicative
     , pcb-tools
@@ -101,6 +108,7 @@ test-suite gerber-test
     , diagrams-rasterific
     , diagrams-svg
     , lens
+    , linear
     , mtl
     , optparse-applicative
     , pcb-tools
