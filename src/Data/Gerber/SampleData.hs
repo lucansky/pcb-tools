@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Data.Gerber.SampleData where
 
 import           Data.ByteString (ByteString)
