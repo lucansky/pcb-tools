@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e9fd561691327e897521967ab19377c10ec48033a5652e59d7041f2ec57a673c
+-- hash: ba0fe2cce6134706bd674ce5bc3aadc38f0c8ccfd610989b7db41a6873797042
 
 name:           pcb-tools
 version:        0.1.0.0
@@ -63,7 +63,7 @@ library
   default-language: Haskell2010
 
 executable drawgerber
-  main-is: DrawGerber.hs
+  main-is: drawgerber.hs
   hs-source-dirs:
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2
@@ -86,7 +86,58 @@ executable drawgerber
     , pretty-simple
     , scientific
   other-modules:
-      GCoder
+      Paths_pcb_tools
+  default-language: Haskell2010
+
+executable drillmerge
+  main-is: drillmerge.hs
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2
+  build-depends:
+      array
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , diagrams
+    , diagrams-contrib
+    , diagrams-lib
+    , diagrams-rasterific
+    , diagrams-svg
+    , lens
+    , linear
+    , mtl
+    , optparse-applicative
+    , pcb-tools
+    , pretty-simple
+    , scientific
+  default-language: Haskell2010
+
+executable gcoder
+  main-is: gcoder.hs
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      array
+    , attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , diagrams
+    , diagrams-contrib
+    , diagrams-lib
+    , diagrams-rasterific
+    , diagrams-svg
+    , lens
+    , linear
+    , mtl
+    , optparse-applicative
+    , pcb-tools
+    , pretty-simple
+    , scientific
+  other-modules:
       Paths_pcb_tools
   default-language: Haskell2010
 

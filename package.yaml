@@ -41,18 +41,29 @@ library:
   #build-tools: [alex, happy]
 
 executables:
-  #gcoder:
-  #  main:                GCoder.hs
-  #  source-dirs:         app
-  #  ghc-options:
-  #  - -threaded
-  #  - -rtsopts
-  #  - -with-rtsopts=-N
-  #  dependencies:
-  #  - pcb-tools
-  drawgerber:
-    main:                DrawGerber.hs
+  gcoder:
+    main:                gcoder.hs
     source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - pcb-tools
+  drawgerber:
+    main:                drawgerber.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -O2
+    dependencies:
+    - pcb-tools
+  drillmerge:
+    main:                drillmerge.hs
+    source-dirs:         app
+    other-modules:       []
     ghc-options:
     - -threaded
     - -rtsopts

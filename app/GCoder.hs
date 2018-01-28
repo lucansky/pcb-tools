@@ -1,5 +1,3 @@
-module GCoder where
-
 import Options.Applicative
 import Data.Semigroup ((<>))
 
