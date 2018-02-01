@@ -7,3 +7,4 @@ import qualified Data.Gerber as G
 import qualified Data.Excellon as G
 import           PCBTools.Common
 
+genericExecutableMessage = "Tested on EAGLE/KiCAD gerber/excellon. "

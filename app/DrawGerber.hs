@@ -45,7 +45,7 @@ programCore options = do
   return ()
 
 drawGerber :: [([Scientific], b0, Located (Trail V2 Double))] -> Diagram B
-drawGerber draws = mconcat $ fmap widenTrace $ replicate 1000 (draws !! 10)
+drawGerber draws = mconcat $ fmap widenTrace $ draws
   where
     widenTrace = (\(a,b,c) -> c # (e (toRealFloat $ head a)) # stroke # lc blue # lw ultraThin)
     -- (lineWidth $ local $ 1.0 *(toRealFloat $ head a) ))
@@ -59,5 +59,5 @@ drawGerber draws = mconcat $ fmap widenTrace $ replicate 1000 (draws !! 10)
 main :: IO ()
 --main = programCore =<< execParser programOptions
 main = do
-  programCore $ DrawerOpts "example/izolator.gbr"
+  programCore $ DrawerOpts "example/reference1.gbr"
 

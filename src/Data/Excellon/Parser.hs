@@ -41,6 +41,9 @@ data ParsedExcellon = ParsedExcellon
   , bodyCommands   :: [ExcellonCommand]}
   deriving (Show, Eq)
 
+extractCommands :: ParsedExcellon -> [ExcellonCommand]
+extractCommands p = headerCommands p <> bodyCommands p
+
 parseExcellon :: ByteString -> Either String ParsedExcellon
 parseExcellon input = parseOnly (parseExcellon' <* endOfInput) input
 
