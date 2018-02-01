@@ -25,7 +25,7 @@ nl = optionalNewLines
 -- > <char>   ::= any ASCII char
 -- > <eof>    ::= "M02*" {<anyChar>}
 parseGerber' :: Parser [Command]
-parseGerber' = many1 $ (eof <|> e <|> s) <* optionalNewLines
+parseGerber' = many1 $ (eof <|> extended <|> standard) <* optionalNewLines
     where
       extended = (char '%' *> parseExtendedCommand <* char '%') <* nl
       standard = parseStandardCommand <* char '*' <* nl
