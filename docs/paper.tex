@@ -1,0 +1,78 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{amssymb,amsmath,latexsym}
+\usepackage[utf8]{inputenc}
+% \usepackage[czech]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+
+\usepackage[top=2.5cm, left=1.5cm, text={18cm, 24cm}]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+
+\renewcommand{\baselinestretch}{1.5} % 1.5 denotes double spacing. Changing it will change the spacing
+
+\usepackage{listings}
+\setlength{\parindent}{0in} 
+
+\begin{document}
+\title{\vspace{-2.0cm} Creating \texttt{pcb-tools} Haskell library 
+				\\ \small{parsing Gerber RS-274X, Excellon and other Haskell tales}}
+\author{Bc. Adam Lučanský}
+\date{\today}
+\maketitle
+\abstract{This documents briefly explains grammar of the parsed languages, as well as the Abstract-Syntax-Tree emitted by the parser.}
+
+\section{Introduction}
+This project sets goal to initiate effort to create Haskell library supporting PCB manufacturing processes (up to certain use-cases) and sub-programs for specific tasks related to manufacturing/milling.
+
+In the first phase of the project, modules parsing and interpreting \texttt{Gerber RS-274X} \footnote{\url{https://www.ucamco.com/files/downloads/file/81/the_gerber_file_format_specification.pdf}} (layer description) format as well as \texttt{Excellon} (drilling) were created.
+Parsing is implemented by the Attoparsec LL($\infty$) parsec \footnote{\url{https://wiki.haskell.org/Parsec}} library. Interpretation is performed in State monad.
+
+This shall be the base point for the further work.
+
+Following sections introduce grammar of parsed/interpreted languages with examples.
+
+\section{Gerber RS-274X}
+Gerber RS-274X is a structured human-readable ASCII format describing vector graphics. Use-case for this format can be found in PCB manufacturing processes.
+
+\newpage % hack-fix
+\lstset{language=bash}
+\lstset{frame=lines}
+\lstset{caption={Example Gerber source file}}
+\lstset{label={lst:gerber_example}}
+\lstset{basicstyle=\footnotesize\ttfamily}
+\begin{lstlisting}
+%ADD10C,1.321*%
+%ADD11OC8,1.321*%
+%ADD12C,1.524*%
+%ADD13C,1.270*%
+D10*
+X42164Y05283D02*
+X42164Y06604D01*
+X44704Y06604D02*
+X44704Y05283D01*
+X47244Y05283D02*
+X47244Y06604D01*
+X47244Y14224D02*
+\end{lstlisting}
+
+\subsection{Grammar}
+\lstset{caption={Grammar rules of implemented Gerber parser in EBNF}}
+\lstset{label={lst:gerber_ebnf}}
+\lstset{basicstyle=\scriptsize\ttfamily}
+\lstinputlisting{gerber.ebnf}
+
+\subsection{AST}
+
+\section{Excellon}
+Excellon is a language used for defining drilling and slotting jobs for CNC machines. Although Excellon has no single official specification, syntax can be derived from outputs of CAM software (Eagle, KiCAD, Altium\dots).
+
+\subsection{Grammar}
+
+\subsection{AST}
+
+\section{Graphical output}
+Library \texttt{diagrams} \footnote{\url{https://archives.haskell.org/projects.haskell.org/diagrams/}} is used in order to render trails drawn by the Gerber interpreter.
+
+\end{document}

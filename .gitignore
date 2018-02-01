@@ -4,3 +4,9 @@
 test.pdf
 test.png
 test.svg
+
+*.aux
+*.log
+*.dvi
+*.out
+*.synctex.*
