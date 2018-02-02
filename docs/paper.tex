@@ -21,27 +21,33 @@
 \author{Bc. Adam Lučanský}
 \date{\today}
 \maketitle
-\abstract{This documents briefly explains grammar of the parsed languages, as well as the Abstract-Syntax-Tree emitted by the parser.}
+\abstract{\texttt{pcb-tools} library sets goal to emit initial effort and to create fully featured PCB design files parser/pre-processor, as well as CAM tooling. Project is currently in development.}
 
 \section{Introduction}
-This project sets goal to initiate effort to create Haskell library supporting PCB manufacturing processes (up to certain use-cases) and sub-programs for specific tasks related to manufacturing/milling.
-
 In the first phase of the project, modules parsing and interpreting \texttt{Gerber RS-274X} \footnote{\url{https://www.ucamco.com/files/downloads/file/81/the_gerber_file_format_specification.pdf}} (layer description) format as well as \texttt{Excellon} (drilling) were created.
 Parsing is implemented by the Attoparsec LL($\infty$) parsec \footnote{\url{https://wiki.haskell.org/Parsec}} library. Interpretation is performed in State monad.
 
 This shall be the base point for the further work.
 
-Following sections introduce grammar of parsed/interpreted languages with examples.
+Second phase is basic tooling based on the library, such as utilities for pre-processing of the drawings/drillings, e.g.:
+\begin{itemize}
+	\item \textbf{viewgerber} - programs for visualization of the designs
+	\item \textbf{mergedrill} - drill file pre-process (rounding drill diameters to available drills)
+	\item \textbf{gcoder} - CAM tooling, outlining path of the polygons as defined in the design (similar to \texttt{pcb2gcode})
+\end{itemize}
+In the current implementation, \texttt{mergedrill} and \texttt{viewgerber} work as a proof-of-concept.
 
+Following sections introduce grammar of parsed/interpreted languages with examples and structures emitted by the interpreter.
+
+\newpage % hack-fix
 \section{Gerber RS-274X}
 Gerber RS-274X is a structured human-readable ASCII format describing vector graphics. Use-case for this format can be found in PCB manufacturing processes.
 
-\newpage % hack-fix
 \lstset{language=bash}
 \lstset{frame=lines}
 \lstset{caption={Example Gerber source file}}
 \lstset{label={lst:gerber_example}}
-\lstset{basicstyle=\footnotesize\ttfamily}
+\lstset{basicstyle=\scriptsize\ttfamily}
 \begin{lstlisting}
 %ADD10C,1.321*%
 %ADD11OC8,1.321*%
@@ -64,15 +70,124 @@ X47244Y14224D02*
 \lstinputlisting{gerber.ebnf}
 
 \subsection{AST}
+Implemented parser outputs AST in type \texttt{[Command]} where:
+
+\lstset{language=haskell}
+\lstset{frame=lines}
+\lstset{caption={Structure of single Gerber command}}
+\lstset{label={lst:gerber_command}}
+\lstset{basicstyle=\footnotesize\ttfamily}
+\begin{lstlisting}
+data Command =
+  -- STANDARD COMMANDS
+  -- G04
+  Comment ByteString |
+  -- Dxx, xx >= 10
+  ToolChange Integer |
+  Operation Coord Action |
+  AddAperture Integer ByteString [Scientific] |
+  DefineAperture ByteString [ByteString] |
+  EndOfFile |
+  -- EXTENDED COMMANDS
+  -- FSLAX
+  FormatStatement FormatSpecification |
+  -- MO
+  SetUnits Unit |
+  SetQuadrantMode QuadrantMode |
+  -- G01/G02/G03
+  SetInterpolationMode InterpolationMode |
+  -- G36/G37
+  SetRegionBoundary RegionBoundary |
+  Deprecated DeprecatedType |
+  SetOffset Integer Integer | -- Deprecated
+  UnknownExtended ByteString |
+  UnknownStandard ByteString
+\end{lstlisting}
+
+\subsection{Interpreted output}
+Interpreter implements the state machine processing stream of commands. Final state represents output.
+\lstset{language=haskell}
+\lstset{frame=lines}
+\lstset{caption={Gerber interpreter structure, acting as a result as well}}
+\lstset{label={lst:gerber_interpreter}}
+\lstset{basicstyle=\footnotesize\ttfamily}
+\begin{lstlisting}
+data InterpreterState = InterpreterState
+  { _formatSpecification :: Maybe FormatSpecification
+  , _coordinateUnit :: Maybe Unit
+  , _currentCoord :: Coord
+  , _currentAperture :: ApertureID
+  , _interpolationMode :: Maybe InterpolationMode
+  , _quadrantMode :: Maybe QuadrantMode
+  -- TODO: polarity
+  -- TODO: LM, LR, LS
+  , _apertures :: Apertures
+  , _apertureTemplates :: ApertureTemplates
+
+  , _draws :: [(ApertureParams, ApertureTemplate, Located (Trail V2 Double))]
+  , _flashes :: [(ApertureParams, ApertureTemplate, Coord)]
+
+  , _commandsParsed :: Integer
+  , _unknownCommands :: Integer
+  , _deprecatedCommands :: Integer}
+
+\end{lstlisting}
 
 \section{Excellon}
-Excellon is a language used for defining drilling and slotting jobs for CNC machines. Although Excellon has no single official specification, syntax can be derived from outputs of CAM software (Eagle, KiCAD, Altium\dots).
+Excellon is a language used for defining drilling and slotting jobs for CNC machines. Although Excellon has no unified official specification, syntax can be derived from outputs of CAM software (Eagle, KiCAD, Altium\dots).
 
 \subsection{Grammar}
-
+\lstset{caption={Grammar rules of implemented Excellon parser in EBNF}}
+\lstset{label={lst:excellon_ebnf}}
+\lstset{basicstyle=\scriptsize\ttfamily}
+\lstinputlisting{excellon.ebnf}
 \subsection{AST}
+Output from the parser and basically AST is \texttt{[ExcellonCommand]}, and is as follows:
+
+\lstset{language=haskell}
+\lstset{frame=lines}
+\lstset{caption={Structure describing Excellon command (not tied to any context)}}
+\lstset{label={lst:excellon_command}}
+\lstset{basicstyle=\footnotesize\ttfamily}
+\begin{lstlisting}
+data ExcellonCommand =
+    -- Mxx command located in Body section
+    M Integer |
+
+    -- TxxCyy command in header (x - Tool identifier, y - diameter)
+    AddDrill ToolIdentifier Diameter |
+
+    -- Sets current drill (T01, T02, T3)
+    -- T0 means no drill, usually at the end of program
+    SetDrill Integer |
+
+    -- Marks the drill position
+    DrillAt {x :: Integer, y :: Integer}
+\end{lstlisting}
+
+\subsection{Interpreted output}
+Due to the nature of the AST, invalid sequence of commands can be represented, therefore interpretation step is needed, resulting following structures:
+
+\lstset{language=haskell}
+\lstset{frame=lines}
+\lstset{caption={InterpreterState, as well as result}}
+\lstset{label={lst:drill_job}}
+\lstset{basicstyle=\footnotesize\ttfamily}
+\begin{lstlisting}
+type Diameter = Double
+type ToolIdentifier = Integer
+data Drill = Drill { diameter :: Diameter }
+
+data DrillJob = DrillJob
+  { drillUnit        :: Unit -- MM or IN
+  , drillsDefinition :: Map ToolIdentifier Drill
+  , drillings        :: [Located ToolIdentifier]
+  , lastUsedDrill    :: ToolIdentifier
+  }
+\end{lstlisting}
 
 \section{Graphical output}
-Library \texttt{diagrams} \footnote{\url{https://archives.haskell.org/projects.haskell.org/diagrams/}} is used in order to render trails drawn by the Gerber interpreter.
+Library \texttt{diagrams} \footnote{\url{https://archives.haskell.org/projects.haskell.org/diagrams/}} is used in order to render trails drawn by the Gerber interpreter. Proof-of-concept has been made to satisfy the critical path for viewing Gerber files, although not yet fully complaint with specification. Up to this point, further iterations shall be easier.
 
+%\section{Conclusion}
 \end{document}

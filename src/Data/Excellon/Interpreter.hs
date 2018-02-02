@@ -43,8 +43,6 @@ evalM (DrillAt drillpos_x drillpos_y) = do
   modify $ over drillings (flip mappend $ [(currentDrillIdent `atPos` p)])
     where
       scaleUnits = (/1000.0) . fromIntegral
-evalM x         = do
-  return ()
 
 -- execState can be replaced with runState, will accumulate intermediate results (in this case units)
 evalExcellonCommands :: Traversable t => t ExcellonCommand -> InterpreterState

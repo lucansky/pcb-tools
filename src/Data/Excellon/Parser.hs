@@ -18,9 +18,6 @@ import           Data.Excellon.Types
 import           PCBTools.Common
 
 data ExcellonCommand =
-    -- '%' command
-    HeaderDelimiter |
-
     -- Mxx command located in Body section
     M Integer |
 
@@ -47,20 +44,26 @@ extractCommands p = headerCommands p <> bodyCommands p
 parseExcellon :: ByteString -> Either String ParsedExcellon
 parseExcellon input = parseOnly (parseExcellon' <* endOfInput) input
 
+-- > <S> ::= <excellonCommands>
+-- > <excellonCommands> ::= <header> <body>
 parseExcellon' :: Parser ParsedExcellon
 parseExcellon' = (ParsedExcellon <$> header <*> body) <* optionalNewLines
-    where
+  where
+      -- > <header> ::= "%" {<headerCommand> <newlines>} "%"
       header :: Parser [ExcellonCommand]
       header = (nl *> char '%' *> nl) *> many1 (parseHeaderCommand <* nl) <* (char '%' *> nl)
+      -- > <body> ::= {<bodyCommand> <newlines>}
       body   :: Parser [ExcellonCommand]
       body   = many (parseBodyCommand <* nl)
 
 -- --------------------------------------------
 -- GENERIC PARSERS
 -- --------------------------------------------
+-- > <commandM> ::= "M" integer
 genericMCommand :: Parser ExcellonCommand
 genericMCommand = M <$> (char 'M' *> decimal)
 
+-- > <genericCommand> ::= <commandM>
 -- Parsers for commands which may be located header or body.
 -- Technically handles overlapping commands.
 genericParsers :: [Parser ExcellonCommand]
@@ -69,17 +72,22 @@ genericParsers = [genericMCommand]
 -- --------------------------------------------
 -- HEADER COMMANDS
 -- --------------------------------------------
+-- > <headerCommand> ::= <genericCommand> | <addDrill>
 parseHeaderCommand = choice $ genericParsers <> [parseAddDrillCommand]
 
+-- > <addDrill> ::= "T" integer "C" scientific
 parseAddDrillCommand = AddDrill <$> (char 'T' *> decimal) <*> (char 'C' *> rational)
 
 -- --------------------------------------------
 -- BODY COMMANDS
 -- --------------------------------------------
+-- > <bodyCommand> ::= <genericCommand> | <setDrill> | <drillAt>
 parseBodyCommand = choice $ genericParsers <> [parseSetDrillCommand, parseDrillAtCommand]
 
+-- > <setDrill> ::= "T" integer
 parseSetDrillCommand = SetDrill <$> (char 'T' *> decimal)
 
+-- > <drillAt> ::= "X" integer "Y" integer
 parseDrillAtCommand = DrillAt <$> (char 'X' *> num) <*> (char 'Y' *> num)
 
 -- --------------------------------------------
@@ -93,6 +101,7 @@ allowedChars :: String
 allowedChars = "A-Za-z0-9,.#@$\n"
 
 -- Low-level parsers
+-- > <newLines> ::= {"\n" | "\r"}
 optionalNewLines = many (char '\n' <|> char '\r')
 restOfCommand = takeWhile (/='*')
 num = signed decimal

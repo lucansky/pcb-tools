@@ -1,0 +1,12 @@
+<S> ::=                   <excellonCommands>
+<excellonCommands> ::=    <header> <body>
+<header> ::=              "%" {<headerCommand> <newlines>} "%"
+<body> ::=                {<bodyCommand> <newlines>}
+<commandM> ::=            "M" integer
+<genericCommand> ::=      <commandM>
+<headerCommand> ::=       <genericCommand> | <addDrill>
+<addDrill> ::=            "T" integer "C" scientific
+<bodyCommand> ::=         <genericCommand> | <setDrill> | <drillAt>
+<setDrill> ::=            "T" integer
+<drillAt> ::=             "X" integer "Y" integer
+<newLines> ::=            {"\n" | "\r"}
