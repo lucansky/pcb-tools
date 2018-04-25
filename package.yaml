@@ -35,6 +35,8 @@ dependencies:
 - diagrams-rasterific
 - optparse-applicative
 - linear
+- ekg
+- parallel
 
 library:
   source-dirs: src
@@ -48,7 +50,7 @@ executables:
     ghc-options:
     - -threaded
     - -rtsopts
-    - -with-rtsopts=-N
+    - -with-rtsopts=-T
     dependencies:
     - pcb-tools
   drawgerber:
@@ -57,6 +59,9 @@ executables:
   drillmerge:
     <<: *apptemplate
     main:                DrillMerge.hs
+  generategerber:
+    <<: *apptemplate
+    main:                GenerateGerber.hs
 
 tests:
   gerber-test:

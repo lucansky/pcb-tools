@@ -13,12 +13,14 @@ import Text.Pretty.Simple (pPrint)
 import Data.Scientific hiding (scientific)
 import qualified Data.ByteString.Char8 as BS
 
+import System.Remote.Monitoring
+import Control.Concurrent
+
 import Data.Gerber.Parser (parseGerber)
 import Data.Gerber.Interpreter -- (evalGerberCommands)
 
-data DrawerOpts = DrawerOpts
-  { inputFile :: FilePath
-  } deriving (Show, Eq)
+newtype DrawerOpts = DrawerOpts {inputFile :: FilePath}
+                   deriving (Show, Eq)
 
 optionParser :: Parser DrawerOpts
 optionParser = DrawerOpts
@@ -30,9 +32,12 @@ programOptions = info (optionParser <**> helper)
   <> progDesc "Print a greeting for TARGET"
   <> header "hello - a test for optparse-applicative" )
 
+
 programCore :: DrawerOpts -> IO ()
 programCore options = do
   contents <- BS.readFile $ inputFile options
+  forkServer (BS.pack "localhost") 8000
+
   let parsed = parseGerber contents
   case parsed of
     Left why -> error $ "unable to parse, err: " ++ show why
@@ -40,24 +45,24 @@ programCore options = do
       let m = evalGerberCommands commands
           drawings = m ^. draws
       --pPrint drawings
-      mainWith $ drawGerber $ drawings
+      mainWith $! drawGerber $! drawings
+
+      threadDelay (100*1000*1000) -- 100s
       return ()
   return ()
 
 drawGerber :: [([Scientific], b0, Located (Trail V2 Double))] -> Diagram B
-drawGerber draws = mconcat $ fmap widenTrace $ draws
+drawGerber draws = mconcat $ fmap widenTrace draws
   where
     widenTrace = (\(a,b,c) -> c # (e (toRealFloat $ head a)) # stroke # lc blue # lw ultraThin)
     -- (lineWidth $ local $ 1.0 *(toRealFloat $ head a) ))
-    e thickness = expandTrail' opts (254*thickness)
-    opts = with   -- & expandJoin .~ LineJoinRound
-                  & expandCap  .~ LineCapRound
+    e thickness = expandTrail' opts (254 * thickness)
+    opts = with & expandJoin .~ LineJoinRound & expandCap .~ LineCapRound
     trails = fmap third draws
-    first = (\(a,b,c) -> a)
-    third = (\(a,b,c) -> c)
+    first (a, b, c) = a
+    third (a, b, c) = c
 
 main :: IO ()
 --main = programCore =<< execParser programOptions
-main = do
-  programCore $ DrawerOpts "example/reference1.gbr"
+main = programCore $ DrawerOpts "example/linkit.gbr"
 
