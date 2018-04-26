@@ -14,7 +14,10 @@ import Data.Scientific hiding (scientific)
 import qualified Data.ByteString.Char8 as BS
 
 import System.Remote.Monitoring
-import Control.Concurrent
+import Control.Concurrent (threadDelay)
+
+import Control.Parallel
+import Control.Parallel.Strategies
 
 import Data.Gerber.Parser (parseGerber)
 import Data.Gerber.Interpreter -- (evalGerberCommands)
@@ -52,8 +55,10 @@ programCore options = do
   return ()
 
 drawGerber :: [([Scientific], b0, Located (Trail V2 Double))] -> Diagram B
-drawGerber draws = mconcat $ fmap widenTrace draws
+drawGerber draws = mconcat $ par (widenTrace <$> draws) -- parallel cariant
+--drawGerber draws = mconcat $ fmap widenTrace draws -- serial variant
   where
+    par = flip (using) $ (parListChunk 100 rseq)
     widenTrace = (\(a,b,c) -> c # (e (toRealFloat $ head a)) # stroke # lc blue # lw ultraThin)
     -- (lineWidth $ local $ 1.0 *(toRealFloat $ head a) ))
     e thickness = expandTrail' opts (254 * thickness)
