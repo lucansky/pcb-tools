@@ -7,6 +7,8 @@ import           Data.List (sortBy,minimumBy)
 import           Text.Pretty.Simple (pPrint)
 import           Data.Scientific hiding (scientific)
 import qualified Data.ByteString.Char8 as BS
+import           System.Random
+import           GenerateGerberTemplates
 
 data GenerateGerberOpts = GenerateGerberOpts
   { elementsCount :: String,
@@ -24,12 +26,35 @@ programOptions = info (optionParser <**> helper)
   <> progDesc "Generates arbitraty gerber file"
   <> header "generategerber - gerber generator" )
 
+generateDrawing :: (Int, Int, Int) -> String
+generateDrawing (drawingIndex, x, y) = do
+  let drawing = drawings !! drawingIndex
+  drawing x y
+
 programCore :: GenerateGerberOpts -> IO ()
 programCore options = do
-  --contents <- BS.openFile $ inputFile options
   let count = (read $ elementsCount options) :: Int
 
-  putStrLn $ "Generat " <> (show count) <> " do suboru " <> (outputFile options)
+  putStrLn $ "Generating " <> (show count) <> " draws to file " <> (outputFile options) <> "."
+
+  g <- newStdGen
+  let max = (length drawings) - 1
+  let randomSequence = take count (randomRs (0, max) g)
+
+  g <- newStdGen
+  let randomXCoordinates = take count (randomRs (100000, 20000) g)
+
+  g <- newStdGen
+  let randomYCoordinates = take count (randomRs (100000, 20000) g)
+
+  let randomParamaters = zip3 randomSequence randomXCoordinates randomYCoordinates
+
+  let generatedDrawings = concat $ map generateDrawing randomParamaters
+  let output = gerberHeader <> generatedDrawings <> gerberFooter
+
+--   putStrLn $ output
+  writeFile (outputFile options) output
+
   return ()
 
 main :: IO ()
