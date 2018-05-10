@@ -1,0 +1,33 @@
+G75*
+%MOMM*%
+%OFA0B0*%
+%FSLAX33Y33*%
+%IPPOS*%
+%LPD*%
+%AMOC8*
+5,1,8,0,0,1.08239X$1,22.5*
+%
+
+G04 Definition of 3 tools - number 10, 11 and 12 with different widths: *
+%ADD10C,1.880*%
+%ADD11C,0.508*%
+%ADD12C,8.508*%
+
+G04 Switching to tool 11: *
+D11*
+
+G04 Drawing some lines with the tool 11: *
+G04 (D03 only moves the tool to a position, while D01 actually draws into the surface) *
+X10000Y20000D03*
+X20000Y20000D01*
+X10000Y10000D01*
+
+G04 Switching to tool 12: *
+D12*
+
+G04 Drawing another lines using tool 12: *
+X20000Y10000D01*
+X12000Y15000D03*
+X18000Y15000D01*
+G04 end of file
+M02*
