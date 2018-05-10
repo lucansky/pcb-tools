@@ -18,6 +18,12 @@ stack exec -- drawgerber --width=400 -o test.pdf
 ```
 Currently has some perfomance issues `O(2^n)` :/
 
+### generategerber
+A generator of sample random gerber files for testing performance.
+```
+stack exec -- generategerber --count 200 generated/sample1.gbr
+```
+
 ### gcoder (work in-progress)
 [pcb2gcode](https://github.com/pcb2gcode/pcb2gcode) alternative (with fixed thermals!), not quite done, will come after drawgerber outputs valid diagrams for all edge cases
 

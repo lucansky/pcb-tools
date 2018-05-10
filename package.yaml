@@ -37,6 +37,7 @@ dependencies:
 - linear
 - ekg
 - parallel
+- random
 
 library:
   source-dirs: src
@@ -46,7 +47,7 @@ executables:
   gcoder: &apptemplate
     main:                GCoder.hs
     source-dirs:         app
-    other-modules:       []
+    other-modules:       [GenerateGerberTemplates]
     ghc-options:
     - -threaded
     - -rtsopts
