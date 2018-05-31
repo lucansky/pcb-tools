@@ -44,6 +44,7 @@ extra-deps:
 - data-clist-0.1.2.0
 - alex-3.2.3
 - diagrams-rasterific-1.4
+- async-pool-0.9.0.2
 
 # Override default flag values for local packages and extra-deps
 flags: {}

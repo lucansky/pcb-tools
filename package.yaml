@@ -36,7 +36,10 @@ dependencies:
 - optparse-applicative
 - linear
 - ekg
+- stm
 - parallel
+- async
+- async-pool
 - random
 
 library:
@@ -63,6 +66,9 @@ executables:
   generategerber:
     <<: *apptemplate
     main:                GenerateGerber.hs
+  mapreduce:
+    <<: *apptemplate
+    main:                ParMapReduce.hs
 
 tests:
   gerber-test:

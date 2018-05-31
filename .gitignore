@@ -1,6 +1,8 @@
 .DS_Store
 .stack-work/*
 *.bak
+.idea
+/*.iml
 test.pdf
 test.png
 test.svg
