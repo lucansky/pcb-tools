@@ -46,7 +46,7 @@ drawing2 :: Int -> Int -> String
 drawing2 x y = "\
 \G04 <<<< DRAWING 2 >>>> *\n\
 \D12*\n\
-\X" ++ show(20000 + x) ++ "Y" ++ show(10000 + y) ++ "D01*\n\
+\X" ++ show(20000 + x) ++ "Y" ++ show(10000 + y) ++ "D02*\n\
 \X" ++ show(12000 + x) ++ "Y" ++ show(15000 + y) ++ "D03*\n\
 \X" ++ show(18000 + x) ++ "Y" ++ show(15000 + y) ++ "D01*\n\
 \\n\
