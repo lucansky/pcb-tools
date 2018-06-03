@@ -20,6 +20,7 @@ description:         Please see the README on Github at <https://github.com/luca
 
 dependencies:
 - base >= 4.7 && < 5
+- split
 - bytestring
 - attoparsec
 - scientific
@@ -37,10 +38,13 @@ dependencies:
 - linear
 - ekg
 - stm
+- clock
+- formatting
 - parallel
 - async
 - async-pool
 - random
+- deepseq
 
 library:
   source-dirs: src
@@ -50,11 +54,12 @@ executables:
   gcoder: &apptemplate
     main:                GCoder.hs
     source-dirs:         app
-    other-modules:       [GenerateGerberTemplates]
+    other-modules:       []
     ghc-options:
+    - -O3
     - -threaded
+    #- -with-rtsopts=-N
     - -rtsopts
-    - -with-rtsopts=-T
     dependencies:
     - pcb-tools
   drawgerber:
@@ -66,6 +71,7 @@ executables:
   generategerber:
     <<: *apptemplate
     main:                GenerateGerber.hs
+    other-modules:       [GenerateGerberTemplates]
   mapreduce:
     <<: *apptemplate
     main:                ParMapReduce.hs
@@ -75,8 +81,8 @@ tests:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
+    - -O3
     - -threaded
     - -rtsopts
-    - -with-rtsopts=-N
     dependencies:
     - pcb-tools

@@ -15,7 +15,8 @@
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-10.0
+#resolver: lts-10.0
+resolver: lts-11.11
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -40,11 +41,25 @@ packages:
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps:
-- hgeometry-0.6.0.0
-- data-clist-0.1.2.0
-- alex-3.2.3
-- diagrams-rasterific-1.4
+  #- hgeometry-0.6.0.0
+  #- data-clist-0.1.2.0
+  #- alex-3.2.3
+  #- diagrams-rasterific-1.4
+  #- async-pool-0.9.0.2
+- diagrams-1.4
+- diagrams-contrib-1.4.3
+- diagrams-core-1.4.1
+- diagrams-lib-1.4.2.2
+- diagrams-svg-1.4.2
+- lens-4.15.4
 - async-pool-0.9.0.2
+- cubicbezier-0.6.0.5
+- diagrams-rasterific-1.4.1
+- diagrams-solve-0.1.1
+- dual-tree-0.2.2
+- free-4.12.4
+- mfsolve-0.3.2.0
+- fast-math-1.0.2
 
 # Override default flag values for local packages and extra-deps
 flags: {}

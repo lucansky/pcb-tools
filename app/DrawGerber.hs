@@ -2,6 +2,8 @@
 --{-# LANGUAGE FlexibleContexts          #-}
 --{-# LANGUAGE NoMonomorphismRestriction #-}
 --{-# LANGUAGE TypeFamilies              #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE BangPatterns #-}
 
 import Options.Applicative
 import Data.Semigroup ((<>))
@@ -20,8 +22,13 @@ import Text.Pretty.Simple (pPrint)
 import Data.Scientific hiding (scientific)
 import qualified Data.ByteString.Char8 as BS
 
+import Control.Exception.Base
+import Control.DeepSeq (force)
+
 import System.Remote.Monitoring
 import Control.Concurrent (threadDelay)
+
+import Data.List.Split (chunksOf)
 
 import Control.Parallel
 import Control.Parallel.Strategies
@@ -30,6 +37,11 @@ import Control.Concurrent.Async.Pool
 import qualified Control.Concurrent.Async as Async
 import Control.Concurrent.STM
 import Control.Concurrent
+
+import Control.Exception
+import Formatting
+import Formatting.Clock
+import System.Clock
 
 import Data.Gerber.Parser (parseGerber)
 import Data.Gerber.Interpreter -- (evalGerberCommands)
@@ -50,6 +62,9 @@ programOptions = info (optionParser <**> helper)
   <> progDesc "Print a greeting for TARGET"
   <> header "hello - a test for optparse-applicative" )
 
+diffTime :: TimeSpec -> TimeSpec -> Double
+diffTime end start = (* 1e-9) $ fromIntegral $ toNanoSecs end - toNanoSecs  start
+
 programCore :: DrawerOpts -> IO ()
 programCore options = do
   contents <- BS.readFile $ inputFile options
@@ -62,13 +77,32 @@ programCore options = do
     Right commands -> do
       let m = evalGerberCommands commands
           drawings = m ^. draws
+
+      putStr $ show (length drawings)
+      putStr ";"
+
+      numCpu <- getNumCapabilities
+      putStr $ show numCpu
+      putStr ";"
+
+      start <- getTime Monotonic
       d <- drawGerberIO drawings
-          --opts = DiagramOpts Nothing (Just 400) "out/out.pdf"
-      --pPrint drawings
+      let !x = d
+
+      endDrawing <- getTime Monotonic
+      putStr $ show $ diffTime endDrawing start
+      putStr ";"
+
       --mainWith $! drawGerber $! drawings
       --mainRender (DiagramOpts Nothing (Just 400) "out/out.pdf") (drawGerber drawings)
       let dim = mkSizeSpec2D (Just 1000) Nothing
+
+      -- RENDERING DISABLED
       renderSVG (outputFile options) dim d
+
+      endRender <- getTime Monotonic
+      putStrLn $ show $ diffTime endRender start
+      return ()
   return ()
 
 
@@ -77,13 +111,18 @@ drawGerberIO :: [([Scientific], b0, Located (Trail V2 Double))] -> IO (Diagram B
 --drawGerberIO draws = return $ mconcat $ fmap widenTrace draws -- serial variant
 drawGerberIO draws = do --return $ mconcat $ fmap widenTrace draws -- serial variant
   pool' <- createPool
-  p <- createTaskGroup pool' 1000000
-  putStrLn $ show (length draws)
-  h <- atomically $ mapReduce p $ map (return . widenTrace) draws
+  p <- createTaskGroup pool' 16
+  let chunks = chunksOf 5000 draws
+  --putStrLn $ show $ map length chunks
+  h <- atomically $ mapReduce p $ map go chunks
   Async.withAsync (runTaskGroup p) $ const $ do
     x <- wait h
     return x
   where
+--    go x =
+      --putStrLn $ "IO: " ++ (show $ length x)
+--      return $ (mconcat $! map widenTrace x)
+    go y = let {res = mconcat $! map widenTrace y} in res `seq` (return $! res)
     par = flip (using) $ (parListChunk 10000 rseq)
     widenTrace = (\(a,b,c) -> c # (e (toRealFloat $ head a)) # stroke # lc blue # lw ultraThin)
     -- (lineWidth $ local $ 1.0 *(toRealFloat $ head a) ))

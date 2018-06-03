@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d98efee7bbdaed0508b647a41c4269f747168d4cf593823e37e7cbaf7d271167
+-- hash: ea2da30bcb41a780b78a39c59f7af3698b782a7266666c4512fda0d845d06690
 
 name:           pcb-tools
 version:        0.1.0.0
@@ -36,13 +36,16 @@ library
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
+    , deepseq
     , diagrams
     , diagrams-contrib
     , diagrams-lib
     , diagrams-rasterific
     , diagrams-svg
     , ekg
+    , formatting
     , lens
     , linear
     , mtl
@@ -51,6 +54,7 @@ library
     , pretty-simple
     , random
     , scientific
+    , split
     , stm
   exposed-modules:
       Data.Excellon
@@ -72,7 +76,7 @@ executable drawgerber
   main-is: DrawGerber.hs
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-T
+  ghc-options: -O3 -threaded -rtsopts
   build-depends:
       array
     , async
@@ -80,13 +84,16 @@ executable drawgerber
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
+    , deepseq
     , diagrams
     , diagrams-contrib
     , diagrams-lib
     , diagrams-rasterific
     , diagrams-svg
     , ekg
+    , formatting
     , lens
     , linear
     , mtl
@@ -96,16 +103,15 @@ executable drawgerber
     , pretty-simple
     , random
     , scientific
+    , split
     , stm
-  other-modules:
-      GenerateGerberTemplates
   default-language: Haskell2010
 
 executable drillmerge
   main-is: DrillMerge.hs
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-T
+  ghc-options: -O3 -threaded -rtsopts
   build-depends:
       array
     , async
@@ -113,13 +119,16 @@ executable drillmerge
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
+    , deepseq
     , diagrams
     , diagrams-contrib
     , diagrams-lib
     , diagrams-rasterific
     , diagrams-svg
     , ekg
+    , formatting
     , lens
     , linear
     , mtl
@@ -129,16 +138,15 @@ executable drillmerge
     , pretty-simple
     , random
     , scientific
+    , split
     , stm
-  other-modules:
-      GenerateGerberTemplates
   default-language: Haskell2010
 
 executable gcoder
   main-is: GCoder.hs
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-T
+  ghc-options: -O3 -threaded -rtsopts
   build-depends:
       array
     , async
@@ -146,13 +154,16 @@ executable gcoder
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
+    , deepseq
     , diagrams
     , diagrams-contrib
     , diagrams-lib
     , diagrams-rasterific
     , diagrams-svg
     , ekg
+    , formatting
     , lens
     , linear
     , mtl
@@ -162,16 +173,15 @@ executable gcoder
     , pretty-simple
     , random
     , scientific
+    , split
     , stm
-  other-modules:
-      GenerateGerberTemplates
   default-language: Haskell2010
 
 executable generategerber
   main-is: GenerateGerber.hs
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-T
+  ghc-options: -O3 -threaded -rtsopts
   build-depends:
       array
     , async
@@ -179,13 +189,16 @@ executable generategerber
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
+    , deepseq
     , diagrams
     , diagrams-contrib
     , diagrams-lib
     , diagrams-rasterific
     , diagrams-svg
     , ekg
+    , formatting
     , lens
     , linear
     , mtl
@@ -195,6 +208,7 @@ executable generategerber
     , pretty-simple
     , random
     , scientific
+    , split
     , stm
   other-modules:
       GenerateGerberTemplates
@@ -204,7 +218,7 @@ executable mapreduce
   main-is: ParMapReduce.hs
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-T
+  ghc-options: -O3 -threaded -rtsopts
   build-depends:
       array
     , async
@@ -212,13 +226,16 @@ executable mapreduce
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
+    , deepseq
     , diagrams
     , diagrams-contrib
     , diagrams-lib
     , diagrams-rasterific
     , diagrams-svg
     , ekg
+    , formatting
     , lens
     , linear
     , mtl
@@ -228,9 +245,8 @@ executable mapreduce
     , pretty-simple
     , random
     , scientific
+    , split
     , stm
-  other-modules:
-      GenerateGerberTemplates
   default-language: Haskell2010
 
 test-suite gerber-test
@@ -238,7 +254,7 @@ test-suite gerber-test
   main-is: Spec.hs
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -O3 -threaded -rtsopts
   build-depends:
       array
     , async
@@ -246,13 +262,16 @@ test-suite gerber-test
     , attoparsec
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
+    , deepseq
     , diagrams
     , diagrams-contrib
     , diagrams-lib
     , diagrams-rasterific
     , diagrams-svg
     , ekg
+    , formatting
     , lens
     , linear
     , mtl
@@ -262,6 +281,7 @@ test-suite gerber-test
     , pretty-simple
     , random
     , scientific
+    , split
     , stm
   other-modules:
       Paths_pcb_tools
