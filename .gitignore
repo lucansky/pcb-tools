@@ -6,6 +6,7 @@
 test.pdf
 test.png
 test.svg
+benchmark/*
 
 *.aux
 *.log

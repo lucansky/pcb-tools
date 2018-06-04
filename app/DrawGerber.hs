@@ -28,7 +28,7 @@ import Control.DeepSeq (force)
 import System.Remote.Monitoring
 import Control.Concurrent (threadDelay)
 
-import Data.List.Split (chunksOf)
+import Data.List.Split (chunksOf, splitOn)
 
 import Control.Parallel
 import Control.Parallel.Strategies
@@ -89,9 +89,9 @@ programCore options = do
       let d :: [Diagram B]
           d = drawGerberParPartials drawings
 
-      endDrawing <- getTime Monotonic
-      putStr $ show $ diffTime endDrawing start
-      putStr ";"
+--       endDrawing <- getTime Monotonic
+--       putStr $ show $ diffTime endDrawing start
+--       putStr ";"
 
       --mainWith $! drawGerber $! drawings
       --mainRender (DiagramOpts Nothing (Just 400) "out/out.pdf") (drawGerber drawings)
@@ -107,6 +107,8 @@ programCore options = do
         x <- wait h
         return x
 
+      mergeDiagramParts (outputFile options) (length d)
+
       endRender <- getTime Monotonic
       putStrLn $ show $ diffTime endRender start
       return ()
@@ -117,6 +119,27 @@ programCore options = do
 --    go y = let {res = mconcat $! map widenTrace y} in res `seq` (return $! res)
 
   return ()
+
+
+mergeDiagramParts :: String -> Int -> IO ()
+mergeDiagramParts fileName parts = do
+    first <- readFile (fileName ++ "1")
+    let firstWithoutFooter = removeFooter first
+
+    let otherFiles = map (\x -> fileName ++ show(x)) [2..parts]
+    others <- mapM readFile otherFiles
+    let othersWithoutHeadersAndFooters = concat $ concat $ map removeHeaderAndFooter others
+
+    writeFile fileName $ (firstWithoutFooter ++ othersWithoutHeadersAndFooters) ++ "</svg>"
+
+    where
+        removeFooter str = do
+            take ((length str) - 6) str
+        removeHeaderAndFooter str = do
+            let withoutFooter = removeFooter str
+            let parts = splitOn "version=\"1.1\">" withoutFooter
+            return $ parts !! 1
+
 
 drawGerberParPartials :: [([Scientific], b0, Located (Trail V2 Double))] -> [Diagram B]
 --drawGerberIO draws = mconcat $ par (widenTrace <$> draws) -- parallel cariant
