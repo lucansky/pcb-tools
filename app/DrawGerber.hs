@@ -86,8 +86,8 @@ programCore options = do
       putStr ";"
 
       start <- getTime Monotonic
-      d <- drawGerberIO drawings
-      let !x = d
+      let d :: [Diagram B]
+          d = drawGerberParPartials drawings
 
       endDrawing <- getTime Monotonic
       putStr $ show $ diffTime endDrawing start
@@ -97,14 +97,48 @@ programCore options = do
       --mainRender (DiagramOpts Nothing (Just 400) "out/out.pdf") (drawGerber drawings)
       let dim = mkSizeSpec2D (Just 1000) Nothing
 
-      -- RENDERING DISABLED
-      renderSVG (outputFile options) dim d
+      let diagramsWithIdentifier = zip d [1..]
+
+      pool' <- createPool
+      p <- createTaskGroup pool' 16
+      --putStrLn $ show $ map length chunks
+      h <- atomically $ mapReduce p $ map (ioRender dim) diagramsWithIdentifier
+      Async.withAsync (runTaskGroup p) $ const $ do
+        x <- wait h
+        return x
 
       endRender <- getTime Monotonic
       putStrLn $ show $ diffTime endRender start
       return ()
+        where
+          ioRender dim (dia, i) = do
+            renderSVG ((outputFile options)++(show i)) dim dia
+
+--    go y = let {res = mconcat $! map widenTrace y} in res `seq` (return $! res)
+
   return ()
 
+drawGerberParPartials :: [([Scientific], b0, Located (Trail V2 Double))] -> [Diagram B]
+--drawGerberIO draws = mconcat $ par (widenTrace <$> draws) -- parallel cariant
+--drawGerberIO draws = return $ mconcat $ fmap widenTrace draws -- serial variant
+drawGerberParPartials draws = do --return $ mconcat $ fmap widenTrace draws -- serial variant
+  --pool' <- createPool
+  --p <- createTaskGroup pool' 16
+  let chunks = chunksOf 5000 draws
+  --putStrLn $ show $ map length chunks
+  par (map (\x -> (mconcat (map widenTrace x))) chunks)
+  --par (map (concat . map widenTrace) chunks)
+
+  where
+    go y = let {res = mconcat $! map widenTrace y} in res `seq` (return $! res)
+    par = flip (using) $ (parList rseq)
+    widenTrace = (\(a,b,c) -> c # (e (toRealFloat $ head a)) # stroke # lc blue # lw ultraThin)
+    -- (lineWidth $ local $ 1.0 *(toRealFloat $ head a) ))
+    e thickness = expandTrail' opts (254 * thickness)
+    opts = with & expandJoin .~ LineJoinRound & expandCap .~ LineCapRound
+    trails = fmap third draws
+    first (a, b, c) = a
+    third (a, b, c) = c
 
 drawGerberIO :: [([Scientific], b0, Located (Trail V2 Double))] -> IO (Diagram B)
 --drawGerberIO draws = mconcat $ par (widenTrace <$> draws) -- parallel cariant
@@ -119,9 +153,6 @@ drawGerberIO draws = do --return $ mconcat $ fmap widenTrace draws -- serial var
     x <- wait h
     return x
   where
---    go x =
-      --putStrLn $ "IO: " ++ (show $ length x)
---      return $ (mconcat $! map widenTrace x)
     go y = let {res = mconcat $! map widenTrace y} in res `seq` (return $! res)
     par = flip (using) $ (parListChunk 10000 rseq)
     widenTrace = (\(a,b,c) -> c # (e (toRealFloat $ head a)) # stroke # lc blue # lw ultraThin)
